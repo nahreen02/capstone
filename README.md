@@ -1,1 +1,1 @@
-/* This repo contains all files relevant to my Capstone Project */ 
+All files relevant to my Capstone Project. Has code from random sources. 
