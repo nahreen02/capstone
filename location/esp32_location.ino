@@ -12,9 +12,9 @@
 #if __has_include("wificonfig.h")
 #include "wificonfig.h"
 #else
-const char* googleApiKey = "AIzaSyC1FkPJf3CNJaNJvIGAKe7v-BxpmuD9UYw";
-const char* ssid = "125 Prince Albert 1st floor";
-const char* passwd = "Pwd13579";
+const char* googleApiKey = "";
+const char* ssid = "";
+const char* passwd = "";
 #endif
 
 WifiLocation location (googleApiKey);
