@@ -76,12 +76,10 @@ void loop() {
   Serial.print(F("Low Flag = "));
   Serial.println(result.LowFlag);
 
-  // delay(1000);
+  delay(1000);
 }
 
 PulseVals getPulse() {
-  PowerOn();
-  Serial.println("Power ON");
   // Serial.print(F("SENSOR 1 -->"));
   // Serial.print(F("heartRate="));
   // Serial.print(heartRate_1, DEC);
@@ -109,30 +107,53 @@ PulseVals getPulse() {
   int low_cnt = 0;
 
   // 4-6 seconds loop for measuring
-  for (int i = 0; i < 4; i++) {
-    particleSensor1.heartrateAndOxygenSaturation(/**SPO2=*/&SPO2_1, /**SPO2Valid=*/&SPO2Valid_1, /**heartRate=*/&heartRate_1, /**heartRateValid=*/&heartRateValid_1);
-    particleSensor2.heartrateAndOxygenSaturation(/**SPO2=*/&SPO2_2, /**SPO2Valid=*/&SPO2Valid_2, /**heartRate=*/&heartRate_2, /**heartRateValid=*/&heartRateValid_2);
+  for (int i = 0; i < 2; i++) {
 
-    if ((heartRate_1 > 40) && (heartRate_1 < 200)) {
+    // Pulse Ox 1
+
+    PowerOn_1();
+    // Serial.println("Power ON - 1");
+    particleSensor1.heartrateAndOxygenSaturation(/**SPO2=*/&SPO2_1, /**SPO2Valid=*/&SPO2Valid_1, /**heartRate=*/&heartRate_1, /**heartRateValid=*/&heartRateValid_1);
+    // Serial.print("HR_1: ");
+    // Serial.print(heartRate_1);
+    if ((heartRate_1 > 60) && (heartRate_1 < 150)) {
       HRT += heartRate_1;
       hr_cnt += 1;
     }
-    if ((heartRate_2 > 40) && (heartRate_2 < 200)) {
-      HRT += heartRate_2;
-      hr_cnt += 1;
-    }
-    if ((SPO2_1 > 90) && (SPO2_1 < 101)) {
+    // Serial.print("  SPO2_1: ");
+    // Serial.println(SPO2_1);
+    if ((SPO2_1 > 93) && (SPO2_1 < 101)) {
       SPO_T += SPO2_1;
       spo_cnt += 1;
     }
-    if ((SPO2_2 > 90) && (SPO2_2 < 101)) {
+    // Serial.println("Power OFF - 1");
+    PowerOff_1();
+    delay(200);
+
+    // Pulse Ox 2
+
+    PowerOn_2();
+    // Serial.println("Power ON - 2");
+    particleSensor2.heartrateAndOxygenSaturation(/**SPO2=*/&SPO2_2, /**SPO2Valid=*/&SPO2Valid_2, /**heartRate=*/&heartRate_2, /**heartRateValid=*/&heartRateValid_2);
+    // Serial.print("HR_2: ");
+    // Serial.print(heartRate_2);
+    if ((heartRate_2 > 60) && (heartRate_2 < 150)) {
+      HRT += heartRate_2;
+      hr_cnt += 1;
+    }
+    // Serial.print("  SPO2_2: ");
+    // Serial.println(SPO2_2);
+    if ((SPO2_2 > 93) && (SPO2_2 < 101)) {
       SPO_T += SPO2_2;
       spo_cnt += 1;
     }
+    // Serial.println("Power OFF - 1");
+    PowerOff_2();
+
     if (((SPO2_1 < 90) && (SPO2_2 < 90)) || ((heartRate_1 < 40) && (heartRate_2 < 40))) {
       low_cnt += 1;
     }
-    delay(100);  // Delay between measurements
+    delay(200);  // Delay between measurements
   }
 
   PulseVals values;  // define struct
@@ -151,32 +172,35 @@ PulseVals getPulse() {
   }
   values.SPO2 = SPO_T;
 
-  if (low_cnt > 3) {
+  if (low_cnt > 1) {
     values.LowFlag = true;
   } else {
     values.LowFlag = false;
   }
 
-  PowerOff();
-  Serial.println("Power OFF");
-
   return values;
 }
 
-void PowerOn() {
+void PowerOn_1() {
   particleSensor1.wakeUp();
+}
+
+void PowerOn_2() {
   particleSensor2.wakeUp();
 }
 
-void PowerOff() {
+void PowerOff_1() {
   particleSensor1.shutDown();
+}
+
+void PowerOff_2() {
   particleSensor2.shutDown();
 }
 
 PulseVals getResting() {
-  PulseVals rest; 
+  PulseVals rest;
   if (moving() == false) {
-    rest = getPulse(); 
+    rest = getPulse();
   }
-  return rest; 
+  return rest;
 }
